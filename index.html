@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Calculator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+      margin: 0;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-rows: 1fr repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      width: 70%;
+      max-width: 280px;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .display {
+      grid-column: span 4;
+      background-color: #222;
+      color: white;
+      text-align: right;
+      padding: 10px;
+      font-size: 1.5em; /* Smaller text for result */
+      border-radius: 8px;
+      height: 50px;
+      line-height: 50px;
+      overflow: hidden;
+    }
+
+    .button {
+      background-color: #f2f2f2;
+      border: none;
+      padding: 15px;
+      font-size: 1.2em; /* Smaller buttons */
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #ddd;
+    }
+
+    .button:active {
+      background-color: #bbb;
+    }
+
+    .button.operator {
+      background-color: #f8c200;
+    }
+
+    .button.operator:hover {
+      background-color: #e6b100;
+    }
+
+    .button.equals {
+      background-color: #0a8c3d;
+      color: white;
+    }
+
+    .button.equals:hover {
+      background-color: #087c30;
+    }
+
+    .button.clear {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .button.clear:hover {
+      background-color: #c0392b;
+    }
+
+    .theme-switcher {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .theme-switcher:hover {
+      background-color: #2980b9;
+    }
+
+    /* Responsive design */
+    @media (max-width: 500px) {
+      .calculator {
+        width: 90%;
+        max-width: 260px;
+      }
+
+      .display {
+        font-size: 1.2em;
+      }
+
+      .button {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Responsive Calculator</h1>
+  <div class="calculator" id="calculator">
+    <div id="display" class="display">0</div>
+
+    <!-- Calculator buttons -->
+    <button class="button clear" onclick="clearDisplay()">C</button>
+    <button class="button operator" onclick="appendToDisplay('/')">/</button>
+    <button class="button operator" onclick="appendToDisplay('*')">*</button>
+    <button class="button operator" onclick="appendToDisplay('-')">-</button>
+
+    <button class="button" onclick="appendToDisplay('7')">7</button>
+    <button class="button" onclick="appendToDisplay('8')">8</button>
+    <button class="button" onclick="appendToDisplay('9')">9</button>
+    <button class="button operator" onclick="appendToDisplay('+')">+</button>
+
+    <button class="button" onclick="appendToDisplay('4')">4</button>
+    <button class="button" onclick="appendToDisplay('5')">5</button>
+    <button class="button" onclick="appendToDisplay('6')">6</button>
+    <button class="button equals" onclick="calculateResult()">=</button>
+
+    <button class="button" onclick="appendToDisplay('1')">1</button>
+    <button class="button" onclick="appendToDisplay('2')">2</button>
+    <button class="button" onclick="appendToDisplay('3')">3</button>
+    <button class="button" onclick="appendToDisplay('0')">0</button>
+
+    <button class="button" onclick="appendToDisplay('.')">.</button>
+  </div>
+
+  <button class="theme-switcher" onclick="switchTheme()">Toggle Dark/Light Theme</button>
+
+  <script>
+    let currentInput = '';
+    let isArabic = false;  // Language preference set to Arabic by default
+    let currentTheme = 'light';  // Default theme
+
+    const englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+    const englishOperators = ['+', '-', '*', '/', '=', 'C', '.'];
+    const arabicOperators = ['+', '−', '×', '÷', '=', 'C', '٫'];
+
+    // Update the display
+    function updateDisplay() {
+      const display = document.getElementById('display');
+      display.textContent = currentInput || '0';
+    }
+
+    // Append value to the current input
+    function appendToDisplay(value) {
+      currentInput += value;
+      updateDisplay();
+    }
+
+    // Clear the display
+    function clearDisplay() {
+      currentInput = '';
+      updateDisplay();
+    }
+
+    // Evaluate and display the result
+    function calculateResult() {
+      try {
+        currentInput = eval(currentInput).toString();
+      } catch (e) {
+        currentInput = 'Error';
+      }
+      updateDisplay();
+    }
+
+    // Convert English numbers and operators to Arabic
+    function convertToArabic() {
+      let convertedInput = currentInput;
+      for (let i = 0; i < englishNumerals.length; i++) {
+        convertedInput = convertedInput.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]);
+      }
+      for (let i = 0; i < englishOperators.length; i++) {
+        convertedInput = convertedInput.replace(new RegExp(englishOperators[i], 'g'), arabicOperators[i]);
+      }
+      return convertedInput;
+    }
+
+    // Convert Arabic numbers and operators to English
+    function convertToEnglish() {
+      let convertedInput = currentInput;
+      for (let i = 0; i < arabicNumerals.length; i++) {
+        convertedInput = convertedInput.replace(new RegExp(arabicNumerals[i], 'g'), englishNumerals[i]);
+      }
+      for (let i = 0; i < arabicOperators.length; i++) {
+        convertedInput = convertedInput.replace(new RegExp(arabicOperators[i], 'g'), englishOperators[i]);
+      }
+      return convertedInput;
+    }
+
+    // Update the display for Arabic or English input
+    function updateLanguageDisplay() {
+      if (isArabic) {
+        currentInput = convertToArabic();
+      } else {
+        currentInput = convertToEnglish();
+      }
+      updateDisplay();
+    }
+
+    // Toggle between light and dark theme
+    function switchTheme() {
+      const calculator = document.getElementById('calculator');
+      const display = document.getElementById('display');
+
+      if (currentTheme === 'light') {
+        calculator.style.backgroundColor = '#333';
+        display.style.backgroundColor = '#222';
+        display.style.color = '#fff';
+        currentTheme = 'dark';
+      } else {
+        calculator.style.backgroundColor = '#fff';
+        display.style.backgroundColor = '#222';
+        display.style.color = '#fff';
+        currentTheme = 'light';
+      }
+    }
+
+    // Automatically start in Arabic mode and show Arabic input
+    updateLanguageDisplay();
+  </script>
+
+</body>
+</html>
